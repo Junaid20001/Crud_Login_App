@@ -1,0 +1,143 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #eef1f7, #dce3f3);
+    margin: 0;
+    padding: 0;
+}
+
+/* MAIN CONTAINER */
+.login-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* LEFT PANEL */
+.left-panel {
+    width: 35%;
+    background: linear-gradient(160deg, #244a86, #0c1f4a);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.35);
+}
+
+.left-panel img {
+    max-width: 200px;
+    margin-bottom: 25px;
+    filter: drop-shadow(2px 4px 10px rgba(0,0,0,0.45));
+}
+
+.left-panel h4 {
+    text-align: center;
+    font-weight: bold;
+    font-size: 30px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+/* RIGHT PANEL */
+.right-panel {
+    width: 65%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+/* LOGIN BOX (Glass Effect) */
+.login-box {
+    width: 100%;
+    max-width: 450px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 45px 35px;
+    border-radius: 18px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.45);
+    box-shadow: 0 12px 45px rgba(0,0,0,0.15);
+    animation: fadeUp .7s ease-out;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.login-box h3 {
+    color: #0C1F4A;
+    font-weight: 700;
+    margin-bottom: 25px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid #0C1F4A;
+    display: inline-block;
+    letter-spacing: .5px;
+}
+
+/* ICON INPUT */
+.icon-input {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.icon-input i {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-size: 20px;
+    color: #5c5c5c;
+}
+
+.icon-input input {
+    height: 48px;
+    padding-left: 45px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    transition: .3s;
+}
+
+.icon-input input:focus {
+    border-color: #0C1F4A !important;
+    box-shadow: 0 0 0 3px rgba(12, 31, 74, 0.25) !important;
+}
+
+/* LOGIN BUTTON */
+.btn-login {
+    background-color: #0C1F4A;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 30px;
+    padding: 12px;
+    font-size: 18px;
+    transition: .25s ease-in-out;
+    border: none;
+}
+
+.btn-login:hover {
+    background-color: #122d63;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(12, 31, 74, .3);
+}
+
+/* LOGIN ICON */
+.login-icon img {
+    width: 95px;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 6px rgba(0,0,0,0.3));
+}
+
+/* RESPONSIVE */
+@media (max-width: 991px) {
+    .login-container {
+        flex-direction: column;
+    }
+    .left-panel, .right-panel {
+        width: 100%;
+        padding: 40px 20px;
+    }
+    .login-box {
+        max-width: 95%;
+    }
+}

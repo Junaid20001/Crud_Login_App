@@ -1,0 +1,53 @@
+<div class="login-container">
+
+    <!-- LEFT SIDE -->
+    <div class="left-panel">
+        <img src="public/images/benchmatrixorg.png" alt="BenchMatrix Logo" />
+        <h4>BenchMatrix<br>Login</h4>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-panel">
+        <div class="login-box">
+
+            <div class="login-icon text-center mb-3">
+                <img src="public/images/login.png" alt="Login Icon" />
+            </div>
+
+            <h3>Welcome to BenchMatrix</h3>
+
+            <form (ngSubmit)="login()">
+
+                <div class="icon-input">
+                    <i class="bi bi-person-fill"></i>
+                    <input 
+                        class="form-control"
+                        placeholder="Username"
+                        [(ngModel)]="name"
+                        name="name"
+                        required
+                    />
+                </div>
+
+                <div class="icon-input">
+                    <i class="bi bi-lock-fill"></i>
+                    <input 
+                        type="password"
+                        class="form-control"
+                        placeholder="Password"
+                        [(ngModel)]="password"
+                        name="password"
+                        required
+                    />
+                </div>
+
+                <button type="submit" class="btn btn-login w-100">Login</button>
+
+                <p class="text-danger mt-2" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

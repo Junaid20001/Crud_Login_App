@@ -1,0 +1,67 @@
+<div class="user-box">
+  Logged in as: <span>{{ username }}</span>
+  <button class="btn logout" (click)="logout()">Logout</button>
+</div>
+
+
+<div class="crud-container">
+
+  <h2>CRUD PANEL</h2>
+
+  <!-- NEW ITEM FORM -->
+  <div class="new-form">
+    <input placeholder="Name" [(ngModel)]="newItem.name">
+    <input placeholder="Father Name" [(ngModel)]="newItem.fatherName">
+    <input type="number" placeholder="Age" [(ngModel)]="newItem.age">
+    <input type="date" placeholder="Date of Birth" [(ngModel)]="newItem.dateOfBirth">
+    <input placeholder="Designation" [(ngModel)]="newItem.designation">
+    <button (click)="addItem()">Add</button>
+  </div>
+
+  <hr>
+
+  <!-- DATA TABLE -->
+  <table border="1" width="100%">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Father Name</th>
+        <th>Age</th>
+        <th>DOB</th>
+        <th>Designation</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of items">
+        <td>{{ item.name }}</td>
+        <td>{{ item.fatherName }}</td>
+        <td>{{ item.age }}</td>
+        <td>{{ item.dateOfBirth | date:'dd/MM/yyyy' }}</td>
+        <td>{{ item.designation }}</td>
+        <td>
+          <button (click)="openEdit(item)" [disabled]="!canEdit(item)">Edit</button>
+          <button (click)="delete(item)" [disabled]="!canEdit(item)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- MODAL FOR EDIT -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-box">
+      <h3>Edit Record</h3>
+      <input placeholder="Name" [(ngModel)]="selected.name">
+      <input placeholder="Father Name" [(ngModel)]="selected.fatherName">
+      <input type="number" placeholder="Age" [(ngModel)]="selected.age">
+      <input type="date" placeholder="Date of Birth" [(ngModel)]="selected.dateOfBirth">
+      <input placeholder="Designation" [(ngModel)]="selected.designation">
+
+      <div class="modal-actions">
+        <button (click)="saveEdit()">Save</button>
+        <button (click)="showModal=false">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
