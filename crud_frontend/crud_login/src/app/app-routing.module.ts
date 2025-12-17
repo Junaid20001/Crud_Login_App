@@ -4,12 +4,13 @@ import { LoginComponent } from './login/login.component';
 import { CrudComponent } from './crud/crud.component';
 
 const routes: Routes = [
-  { path: '', component: LoginComponent }, // Default login page
-  { path: 'crud', component: CrudComponent } // CRUD page
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'crud', component: CrudComponent }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

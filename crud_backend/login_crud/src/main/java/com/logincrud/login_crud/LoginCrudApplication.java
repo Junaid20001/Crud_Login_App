@@ -9,4 +9,3 @@ public class LoginCrudApplication {
         SpringApplication.run(LoginCrudApplication.class, args);
     }
 }
-

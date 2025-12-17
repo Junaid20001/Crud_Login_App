@@ -2,6 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
+interface LoginResponse {
+  username: string;
+  role: string;
+}
+
 @Component({
   selector: 'app-login',
   standalone: false,
@@ -22,18 +27,26 @@ export class LoginComponent {
       password: this.password
     };
 
-    this.http.post("http://localhost:8080/api/auth/login", body, { responseType: "text" })
-      .subscribe(
-        res => {
+    
+    this.http.post<LoginResponse>("http://localhost:8080/api/auth/login", body)
+      .subscribe({
+        next: (res) => {
+          console.log('Login response:', res);
           
-          // login.component.ts
-          localStorage.setItem('username', this.name.trim()); 
+          // 🔥 Store username and role from the JSON response
+          localStorage.setItem('username', res.username.trim());
+          localStorage.setItem('role', res.role.toUpperCase());
+          
+          console.log('Stored username:', res.username);
+          console.log('Stored role:', res.role);
+          
           this.errorMsg = "";
-          this.router.navigate(['/crud']); 
+          this.router.navigate(['/crud']);
         },
-        err => {
+        error: (err) => {
+          console.error('Login error:', err);
           this.errorMsg = "Invalid Username or Password";
         }
-      );
+      });
   }
 }

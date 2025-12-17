@@ -1,67 +1,225 @@
 <div class="user-box">
-  Logged in as: <span>{{ username }}</span>
+  Logged in as: <b>{{username}}</b>
   <button class="btn logout" (click)="logout()">Logout</button>
 </div>
 
-
 <div class="crud-container">
-
-  <h2>CRUD PANEL</h2>
-
-  <!-- NEW ITEM FORM -->
-  <div class="new-form">
-    <input placeholder="Name" [(ngModel)]="newItem.name">
-    <input placeholder="Father Name" [(ngModel)]="newItem.fatherName">
-    <input type="number" placeholder="Age" [(ngModel)]="newItem.age">
-    <input type="date" placeholder="Date of Birth" [(ngModel)]="newItem.dateOfBirth">
-    <input placeholder="Designation" [(ngModel)]="newItem.designation">
-    <button (click)="addItem()">Add</button>
+  <!-- Error Message Display -->
+  <div *ngIf="errorMessage" class="error-banner">
+    <span>⚠️ {{errorMessage}}</span>
+    <button (click)="errorMessage = ''">&times;</button>
   </div>
 
-  <hr>
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
 
-  <!-- DATA TABLE -->
-  <table border="1" width="100%">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Father Name</th>
-        <th>Age</th>
-        <th>DOB</th>
-        <th>Designation</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of items">
-        <td>{{ item.name }}</td>
-        <td>{{ item.fatherName }}</td>
-        <td>{{ item.age }}</td>
-        <td>{{ item.dateOfBirth | date:'dd/MM/yyyy' }}</td>
-        <td>{{ item.designation }}</td>
-        <td>
-          <button (click)="openEdit(item)" [disabled]="!canEdit(item)">Edit</button>
-          <button (click)="delete(item)" [disabled]="!canEdit(item)">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Search Field -->
+  <mat-form-field appearance="fill" style="width:100%">
+    <mat-label>Search by name</mat-label>
+    <input matInput placeholder="Type to search..." (keyup)="applyFilter($event)">
+  </mat-form-field>
 
-  <!-- MODAL FOR EDIT -->
-  <div class="modal" *ngIf="showModal">
-    <div class="modal-box">
-      <h3>Edit Record</h3>
-      <input placeholder="Name" [(ngModel)]="selected.name">
-      <input placeholder="Father Name" [(ngModel)]="selected.fatherName">
-      <input type="number" placeholder="Age" [(ngModel)]="selected.age">
-      <input type="date" placeholder="Date of Birth" [(ngModel)]="selected.dateOfBirth">
-      <input placeholder="Designation" [(ngModel)]="selected.designation">
+  <!-- Add New Item Form -->
+  <div class="new-form">
+    <h3>Add New Record</h3>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Name *</label>
+        <input 
+          placeholder="Enter name" 
+          [(ngModel)]="newItem.name"
+          [disabled]="isLoading">
+      </div>
 
-      <div class="modal-actions">
-        <button (click)="saveEdit()">Save</button>
-        <button (click)="showModal=false">Cancel</button>
+      <div class="form-field">
+        <label>Father Name</label>
+        <input 
+          placeholder="Enter father name" 
+          [(ngModel)]="newItem.fatherName"
+          [disabled]="isLoading">
+      </div>
+
+      <div class="form-field">
+        <label>Age</label>
+        <input 
+          type="number" 
+          placeholder="Enter age" 
+          [(ngModel)]="newItem.age"
+          [disabled]="isLoading">
+      </div>
+
+      <div class="form-field">
+        <label>Email *</label>
+        <input 
+          placeholder="Enter email"
+          [(ngModel)]="newItem.email"
+          (blur)="validateEmail(newItem.email)"
+          [disabled]="isLoading">
+        <p *ngIf="emailError" class="error-text">❌ Invalid email format</p>
+      </div>
+
+      <div class="form-field">
+        <label>Date of Birth</label>
+        <input 
+          type="date" 
+          [(ngModel)]="newItem.dateOfBirth"
+          [disabled]="isLoading">
+      </div>
+
+      <div class="form-field">
+        <label>Designation</label>
+        <input 
+          placeholder="Enter designation" 
+          [(ngModel)]="newItem.designation"
+          [disabled]="isLoading">
       </div>
     </div>
+
+    <button 
+      class="btn-add" 
+      (click)="addItem()"
+      [disabled]="isLoading || emailError">
+      ➕ Add Record
+    </button>
   </div>
 
+  <!-- Data Table -->
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let e">{{e.name}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="fatherName">
+        <th mat-header-cell *matHeaderCellDef>Father Name</th>
+        <td mat-cell *matCellDef="let e">{{e.fatherName}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="age">
+        <th mat-header-cell *matHeaderCellDef>Age</th>
+        <td mat-cell *matCellDef="let e">{{e.age}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let e">{{e.email}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="dateOfBirth">
+        <th mat-header-cell *matHeaderCellDef>Date of Birth</th>
+        <td mat-cell *matCellDef="let e">{{e.dateOfBirth | date: 'mediumDate'}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="designation">
+        <th mat-header-cell *matHeaderCellDef>Designation</th>
+        <td mat-cell *matCellDef="let e">{{e.designation}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let e">
+          <button 
+            mat-button 
+            color="primary" 
+            (click)="openEdit(e)" 
+            [disabled]="!canEdit(e) || isLoading">
+            ✏️ Edit
+          </button>
+          <button 
+            mat-button 
+            color="warn" 
+            (click)="delete(e)" 
+            [disabled]="!canEdit(e) || isLoading">
+            🗑️ Delete
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator 
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      showFirstLastButtons>
+    </mat-paginator>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Edit Record</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-field">
+        <label>Name *</label>
+        <input 
+          [(ngModel)]="selected.name"
+          [disabled]="isLoading">
+      </div>
+
+      <div class="form-field">
+        <label>Father Name</label>
+        <input 
+          [(ngModel)]="selected.fatherName"
+          [disabled]="isLoading">
+      </div>
+
+      <div class="form-field">
+        <label>Age</label>
+        <input 
+          type="number" 
+          [(ngModel)]="selected.age"
+          [disabled]="isLoading">
+      </div>
+
+      <div class="form-field">
+        <label>Email *</label>
+        <input 
+          [(ngModel)]="selected.email"
+          (blur)="validateEmail(selected.email)"
+          [disabled]="isLoading">
+        <p *ngIf="emailError" class="error-text">❌ Invalid email format</p>
+      </div>
+
+      <div class="form-field">
+        <label>Date of Birth</label>
+        <input 
+          type="date" 
+          [(ngModel)]="selected.dateOfBirth"
+          [disabled]="isLoading">
+      </div>
+
+      <div class="form-field">
+        <label>Designation</label>
+        <input 
+          [(ngModel)]="selected.designation"
+          [disabled]="isLoading">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button 
+        class="btn-cancel" 
+        (click)="closeModal()"
+        [disabled]="isLoading">
+        Cancel
+      </button>
+      <button 
+        class="btn-save" 
+        (click)="saveEdit()"
+        [disabled]="isLoading || emailError">
+        💾 Save Changes
+      </button>
+    </div>
+  </div>
 </div>

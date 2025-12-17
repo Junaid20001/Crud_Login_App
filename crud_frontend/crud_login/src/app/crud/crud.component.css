@@ -1,203 +1,340 @@
-/* =======================
-   User Box
-======================= */
+/* =========================
+   USER BOX
+========================= */
 .user-box {
-  max-width: 700px;
-  margin: 20px auto;
-  padding: 12px 25px;
-  background: linear-gradient(135deg, #6a11cb, #2575fc); /* soft gradient */
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: #2c3e50;
   color: white;
-  border-radius: 12px;
-  font-size: 1.1rem;
+  padding: 12px 20px;
+  border-bottom-left-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-box b {
+  color: #4aa3ff;
+}
+
+.btn.logout {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
   font-weight: 600;
+  transition: background 0.3s;
+}
+
+.btn.logout:hover {
+  background: #c0392b;
+}
+
+/* =========================
+   MAIN CONTAINER
+========================= */
+.crud-container {
+  max-width: 1400px;
+  margin: 75px auto 20px;
+  padding: 20px;
+}
+
+/* =========================
+   ERROR BANNER
+========================= */
+.error-banner {
+  background: #fee;
+  border: 1px solid #f5b7b1;
+  color: #c0392b;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.user-box:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-}
-
-.user-box .logout {
-  background: #ff6b6b;
-  color: white;
-  padding: 5px 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+.error-banner button {
+  background: none;
   border: none;
-  transition: all 0.2s ease;
+  font-size: 22px;
+  cursor: pointer;
+  color: #c0392b;
 }
 
-.user-box .logout:hover {
-  background: #ff4c4c;
-}
-
-/* =======================
-   Container
-======================= */
-.crud-container {
-  max-width: 700px;
-  margin: 1rem auto 2rem auto;
-  padding: 2rem;
-  border-radius: 15px;
-  background: #f9f9ff;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-h2, h3 {
-  color: #3333cc; /* subtle vibrant color */
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-/* =======================
-   New Form Inputs
-======================= */
-.new-form {
+/* =========================
+   LOADING OVERLAY
+========================= */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.9);
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
-.new-form input {
-  flex: 1;
+.spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #eee;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================
+   ADD NEW RECORD (MEDIUM)
+========================= */
+.new-form {
+  background: #f8f9fa;
+  padding: 18px;
+  border-radius: 8px;
+  margin: 18px 0;
+  border-left: 4px solid #3498db;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.new-form h3 {
+  margin-bottom: 14px;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.form-field input {
   padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  transition: all 0.2s ease;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  font-size: 13px;
 }
 
-.new-form input:focus {
-  border-color: #3333cc;
-  box-shadow: 0 0 5px rgba(51,51,204,0.2);
+.form-field input:focus {
   outline: none;
+  border-color: #3498db;
 }
 
-.new-form button {
-  background: #6a11cb;
+.form-field input:disabled {
+  background: #ececec;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #e74c3c;
+  margin-top: 4px;
+}
+
+/* Add Button (Medium) */
+.btn-add {
+  margin-top: 12px;
+  padding: 10px 26px;
+  background: #27ae60;
   color: white;
-  padding: 8px 15px;
-  border-radius: 8px;
   border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.25s;
 }
 
-.new-form button:hover {
-  background: #4b0fb8;
+.btn-add:hover:not(:disabled) {
+  background: #219150;
+  transform: translateY(-1px);
 }
 
-/* =======================
-   Table Styling
-======================= */
+.btn-add:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   TABLE (MEDIUM SIZE)
+========================= */
+.table-container {
+  background: white;
+  border-radius: 8px;
+  margin-top: 18px;
+  border-top: 4px solid #27ae60;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+}
+
 table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 14px;
 }
 
 th {
-  background: #6a11cb;
-  color: white;
-  padding: 10px;
-  font-weight: 600;
+  background: #34495e !important;
+  color: white !important;
+  padding: 14px 16px !important;
+  font-weight: 600 !important;
 }
 
 td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  padding: 13px 16px !important;
 }
 
 tr:hover {
-  background: #f0f0ff;
+  background: #f4f6f8;
 }
 
-/* Action Buttons */
 td button {
-  margin-right: 5px;
-  padding: 5px 12px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  color: white;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  margin-right: 6px;
 }
 
-td button:nth-child(1) { background: #2196f3; } /* Edit */
-td button:nth-child(1):hover { background: #1976d2; }
+/* =========================
+   PAGINATOR
+========================= */
+::ng-deep .mat-paginator {
+  background: #f1f3f5;
+  padding: 10px 16px;
+  font-size: 13px;
+}
 
-td button:nth-child(2) { background: #f44336; } /* Delete */
-td button:nth-child(2):hover { background: #d32f2f; }
-
-/* =======================
-   Modal Styling
-======================= */
-.modal {
+/* =========================
+   MODAL
+========================= */
+.modal-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.4);
-  display: flex; justify-content: center; align-items: center;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
 }
 
-.modal-box {
-  background: #fff;
-  padding: 20px;
+.modal-content {
+  background: white;
   border-radius: 12px;
-  width: 400px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  width: 90%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
 }
 
-.modal-box input {
-  width: 100%;
-  margin: 5px 0;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.modal-header {
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
 }
 
-.modal-actions {
-  text-align: right;
-  margin-top: 10px;
+.modal-header h2 {
+  font-size: 20px;
+  margin: 0;
 }
 
-.modal-actions button {
-  margin-left: 8px;
-  padding: 6px 12px;
-  border-radius: 8px;
+.close-btn {
+  font-size: 28px;
+  background: none;
   border: none;
-  font-weight: 500;
   cursor: pointer;
 }
 
-.modal-actions button:first-child {
-  background: #4caf50; color: white;
+.modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.modal-actions button:first-child:hover { background: #3e8e41; }
 
-.modal-actions button:last-child {
-  background: #f44336; color: white;
+.modal-footer {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: #f6f7f8;
 }
-.modal-actions button:last-child:hover { background: #d32f2f; }
 
-/* =======================
-   Responsive
-======================= */
-@media (max-width: 600px) {
-  .new-form {
-    flex-direction: column;
+.btn-cancel,
+.btn-save {
+  padding: 9px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-save {
+  background: #3498db;
+  color: white;
+}
+
+.btn-save:hover:not(:disabled) {
+  background: #2c80b4;
+}
+
+.btn-save:disabled,
+.btn-cancel:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .crud-container {
+    padding: 12px;
   }
-  
-  .new-form input, .new-form button {
-    width: 100%;
+
+  table {
+    font-size: 12px;
   }
+
+  th, td {
+    padding: 8px !important;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+}
+
+/* =========================
+   MATERIAL OVERRIDES
+========================= */
+::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }

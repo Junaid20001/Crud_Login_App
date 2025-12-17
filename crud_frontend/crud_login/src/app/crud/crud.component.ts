@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { CrudloginService, CrudItem, UserRole } from '../services/crudlogin.service';
 
 @Component({
   selector: 'app-crud',
@@ -10,131 +12,161 @@ import { Router } from '@angular/router';
 })
 export class CrudComponent implements OnInit {
 
-  username: string = '';
-  items: any[] = [];
+  username = '';
+  role: string = 'user';
+  displayedColumns: string[] = [
+    'name', 'fatherName', 'age', 'email', 'dateOfBirth', 'designation', 'action'
+  ];
 
-  // Modal control
+  dataSource = new MatTableDataSource<CrudItem>();
+
   showModal = false;
-  selected: any = {};
+  selected: CrudItem = {} as CrudItem;
 
-  // Form for new item
-  newItem: any = {
+  newItem: CrudItem = {
     name: '',
     fatherName: '',
     age: null,
     dateOfBirth: '',
-    designation: ''
+    designation: '',
+    email: '',
+    username: ''
   };
 
-  apiUrl = 'http://localhost:8080/api/crud';
+  emailError = false;
+  isLoading = false;
+  errorMessage = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  constructor(
+    private service: CrudloginService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    // Frontend session check
     this.username = localStorage.getItem('username') || '';
-
+    this.role = localStorage.getItem('role') || 'user';
+    
+    // 🔥 NORMALIZE ROLE (handle case sensitivity)
+    this.role = this.role.toUpperCase();
+    
     if (!this.username) {
-      alert('Please login first');
-      this.router.navigate(['/']); // Redirect to login page
+      this.router.navigate(['/login']);
       return;
     }
-
-    // Load CRUD data
     this.loadData();
-
-    // Back-button prevention
-    history.pushState(null, '', location.href);
-    window.onpopstate = () => {
-      history.go(1);
-    };
   }
 
-  loadData() {
-    this.http.get<any[]>(`${this.apiUrl}?username=${this.username}`)
-      .subscribe(
-        res => this.items = res,
-        err => {
-          if(err.status === 401) {
-            alert('Session expired. Please login again.');
+  loadData(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.service.getAll(this.username).subscribe({
+      next: (res: CrudItem[]) => {
+        this.dataSource.data = res;
+        this.dataSource.paginator = this.paginator;
+        this.isLoading = false;
+      },
+      error: (err: Error) => {
+        console.error('Load failed:', err);
+        this.errorMessage = err.message || 'Failed to load data';
+        this.isLoading = false;
+
+        if (err.message.includes('User not found')) {
+          setTimeout(() => {
             localStorage.removeItem('username');
-            this.router.navigate(['/']);
-          }
+            localStorage.removeItem('role');
+            this.router.navigate(['/login']);
+          }, 2000);
         }
-      );
+      }
+    });
   }
 
-  addItem() {
-    if(!this.newItem.name.trim()) { alert('Enter Name'); return; }
+  applyFilter(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = value.trim().toLowerCase();
+  }
+
+  validateEmail(email: string): boolean {
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    this.emailError = !pattern.test(email);
+    return !this.emailError;
+  }
+
+  addItem(): void {
+    if (!this.newItem.name?.trim()) { alert('Name required'); return; }
+    if (!this.newItem.email?.trim()) { alert('Email required'); return; }
+    if (!this.validateEmail(this.newItem.email)) { alert('Invalid email'); return; }
+
+    this.isLoading = true;
     this.newItem.username = this.username;
 
-    this.http.post(this.apiUrl, this.newItem)
-      .subscribe(
-        () => {
-          this.newItem = { name: '', fatherName: '', age: null, dateOfBirth: '', designation: '' };
-          this.loadData();
-        },
-        err => {
-          if(err.status === 401) {
-            alert('Session expired. Please login again.');
-            localStorage.removeItem('username');
-            this.router.navigate(['/']);
-          }
-        }
-      );
+    this.service.add(this.newItem).subscribe({
+      next: () => {
+        this.newItem = { name:'', fatherName:'', age:null, dateOfBirth:'', designation:'', email:'', username:'' };
+        this.loadData();
+      },
+      error: (err: Error) => {
+        console.error('Add failed:', err);
+        this.errorMessage = err.message;
+        this.isLoading = false;
+      }
+    });
   }
 
-  openEdit(item: any) {
+  openEdit(item: CrudItem): void {
     this.selected = { ...item };
     this.showModal = true;
+    this.emailError = false;
+    this.errorMessage = '';
   }
 
-  saveEdit() {
-    this.selected.username = this.username;
-
-    this.http.put(`${this.apiUrl}/${this.selected.id}`, this.selected)
-      .subscribe(
-        () => {
-          this.showModal = false;
-          this.loadData();
-        },
-        err => {
-          if(err.status === 401) {
-            alert('Session expired. Please login again.');
-            localStorage.removeItem('username');
-            this.router.navigate(['/']);
-          }
-        }
-      );
-  }
-
-  delete(item: any) {
-    if(!confirm('Are you sure?')) return;
-
-    this.http.delete(`${this.apiUrl}/${item.id}?username=${this.username}`)
-      .subscribe(
-        () => this.loadData(),
-        err => {
-          if(err.status === 401) {
-            alert('Session expired. Please login again.');
-            localStorage.removeItem('username');
-            this.router.navigate(['/']);
-          }
-        }
-      );
-  }
-
-  canEdit(item: any): boolean {
-    const currentUser = this.username?.trim().toLowerCase();
-    const itemUser = item.user?.name?.trim().toLowerCase();
-    return currentUser === 'admin' || currentUser === itemUser;
-  }
-
-  logout() {
-    if(confirm('Are you sure you want to logout?')) {
-      localStorage.removeItem('username');
-      this.router.navigate(['/']); // Redirect to login
+  saveEdit(): void {
+    if (!this.selected.id) return;
+    if (!this.selected.name?.trim() || !this.selected.email?.trim() || !this.validateEmail(this.selected.email)) {
+      alert('Name and valid Email required'); return;
     }
+
+    this.isLoading = true;
+    this.service.update(this.selected.id, this.selected).subscribe({
+      next: () => { this.showModal = false; this.loadData(); },
+      error: (err: Error) => { 
+        console.error('Update error:', err); 
+        this.isLoading = false; 
+        alert(err.message || 'Update failed'); 
+      }
+    });
   }
 
+  delete(item: CrudItem): void {
+    if (!item.id || !confirm(`Delete "${item.name}"?`)) return;
+    this.isLoading = true;
+    this.service.delete(item.id).subscribe({
+      next: () => this.loadData(),
+      error: (err: Error) => { 
+        console.error('Delete error:', err); 
+        this.isLoading = false; 
+        alert(err.message || 'Delete failed'); 
+      }
+    });
+  }
+
+  // 🔥 FIX: Check ROLE instead of username
+  canEdit(item: CrudItem): boolean {
+    return this.role === 'ADMIN' || item.username === this.username;
+  }
+
+  closeModal(): void {
+    this.showModal = false; 
+    this.emailError = false; 
+    this.errorMessage = '';
+  }
+
+  logout(): void {
+    localStorage.removeItem('username');
+    localStorage.removeItem('role');
+    this.router.navigate(['/login']);
+  }
 }

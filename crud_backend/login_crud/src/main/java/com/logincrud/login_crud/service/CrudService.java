@@ -1,75 +1,54 @@
 package com.logincrud.login_crud.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.logincrud.login_crud.dto.CrudRequest;
 import com.logincrud.login_crud.model.Crud;
 import com.logincrud.login_crud.model.Login;
 import com.logincrud.login_crud.repository.CrudRepository;
 import com.logincrud.login_crud.repository.LoginRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
 public class CrudService {
 
     @Autowired
-    private CrudRepository crudRepository;
+    private CrudRepository crudRepo;
 
     @Autowired
-    private LoginRepository loginRepository;
+    private LoginRepository loginRepo;
 
-    private boolean isAdmin(Login user) {
-        return user.getName().equalsIgnoreCase("admin");
+    private boolean isAdmin(Login u) {
+        return u != null && "admin".equalsIgnoreCase(u.getRole());
     }
 
     public List<Crud> getAll(String username) {
-        Login user = loginRepository.findByName(username);
+        Login user = loginRepo.findByName(username);
+        if (user == null) throw new RuntimeException("User not found");
 
-        if (isAdmin(user)) {
-            return crudRepository.findAll();
-        }
-        return crudRepository.findByUser_Name(username);
+        return isAdmin(user) ? crudRepo.findAll()
+                : crudRepo.findByUser_Name(username);
     }
 
-    public Crud create(CrudRequest request) {
-        Login user = loginRepository.findByName(request.getUsername());
+    public Crud create(CrudRequest r) {
+        Login user = loginRepo.findByName(r.getUsername());
+        if (user == null) throw new RuntimeException("User not found");
 
-        Crud crud = new Crud();
-        crud.setName(request.getName());
-        crud.setFatherName(request.getFatherName());
-        crud.setAge(request.getAge());
-        crud.setDateOfBirth(request.getDateOfBirth());
-        crud.setDesignation(request.getDesignation());
-        crud.setUser(user);
+        Crud c = new Crud();
+        c.setName(r.getName());
+        c.setFatherName(r.getFatherName());
+        c.setAge(r.getAge());
+        c.setDateOfBirth(r.getDateOfBirth());
+        c.setDesignation(r.getDesignation());
+        c.setEmail(r.getEmail());
+        c.setUser(user);
 
-        return crudRepository.save(crud);
+        return crudRepo.save(c);
     }
 
-    public Crud update(int id, CrudRequest request) {
-        Crud crud = crudRepository.findById(id).orElseThrow();
-        Login user = loginRepository.findByName(request.getUsername());
-
-        if (!isAdmin(user) && crud.getUser().getId() != user.getId()) {
-            throw new RuntimeException("Unauthorized");
-        }
-
-        crud.setName(request.getName());
-        crud.setFatherName(request.getFatherName());
-        crud.setAge(request.getAge());
-        crud.setDateOfBirth(request.getDateOfBirth());
-        crud.setDesignation(request.getDesignation());
-
-        return crudRepository.save(crud);
-    }
-
-    public void delete(int id, String username) {
-        Crud crud = crudRepository.findById(id).orElseThrow();
-        Login user = loginRepository.findByName(username);
-
-        if (!isAdmin(user) && crud.getUser().getId() != user.getId()) {
-            throw new RuntimeException("Unauthorized");
-        }
-
-        crudRepository.delete(crud);
+    public boolean canEdit(Login user, Crud c) {
+        if(user == null) return false;
+        return isAdmin(user) || c.getUser().getId() == user.getId();
     }
 }
